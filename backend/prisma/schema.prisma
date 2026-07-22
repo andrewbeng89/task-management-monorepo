@@ -1,0 +1,82 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Developer {
+  id        String            @id @default(uuid())
+  name      String            @unique
+  skills    DeveloperSkill[]
+  tasks     Task[]
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  @@map("developers")
+}
+
+model Skill {
+  id         String           @id @default(uuid())
+  name       String           @unique // e.g., "Frontend", "Backend"
+  developers DeveloperSkill[]
+  tasks      TaskSkill[]
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@map("skills")
+}
+
+// Explicit Join Table: Developer <-> Skill (Many-to-Many)
+model DeveloperSkill {
+  developerId String    @map("developer_id")
+  skillId     String    @map("skill_id")
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([developerId, skillId])
+  @@map("developer_skills")
+}
+
+// Explicit Join Table: Task <-> Required Skill (Many-to-Many)
+model TaskSkill {
+  taskId  String @map("task_id")
+  skillId String @map("skill_id")
+  task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, skillId])
+  @@map("task_skills")
+}
+
+// Self-Referencing Recursive Task Model
+model Task {
+  id          String      @id @default(uuid())
+  title       String
+  status      TaskStatus  @default(TODO)
+  
+  // Developer Relationship (Optional assignment)
+  assigneeId  String?     @map("assignee_id")
+  assignee    Developer?  @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  // Skill Requirements
+  skills      TaskSkill[]
+
+  // Self-Referencing Parent-Child Relationship (Recursive Subtasks)
+  parentId    String?     @map("parent_id")
+  parent      Task?       @relation("TaskToSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks    Task[]      @relation("TaskToSubtasks")
+
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("tasks")
+}
