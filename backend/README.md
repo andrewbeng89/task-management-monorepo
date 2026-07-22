@@ -2,6 +2,34 @@
 
 Express + Prisma 7 (PostgreSQL) API for the task management app.
 
+## Task API
+
+REST endpoints for the task domain, described by an OpenAPI 3.1 document served at
+`GET /api/openapi.json` (generated from the same Zod schemas used to validate requests, so
+the spec never drifts from the implementation).
+
+| Method & path | Description |
+| --- | --- |
+| `POST /api/tasks` | Create a task (`title` required; optional `status`, `requiredSkillIds`, `parentId`). Returns `201`. |
+| `GET /api/tasks` | List all tasks (with assignee and required skills). |
+| `GET /api/tasks/:id` | Fetch a single task. `404` if unknown. |
+| `PATCH /api/tasks/:id/assignee` | Assign to a developer (`{ "developerId" }`). Allowed only if the developer has **at least one** of the task's required skills (any developer if the task requires none); `409` on mismatch. |
+| `PATCH /api/tasks/:id/status` | Update status (`{ "status": "TODO" \| "IN_PROGRESS" \| "DONE" }`). |
+| `GET /api/openapi.json` | The OpenAPI 3.1 specification. |
+| `GET /api/health`, `GET /api/health/db` | Liveness / readiness. |
+
+Errors are JSON of shape `{ "error": string, "details"?: unknown }` with `4xx` for client
+errors and `500` for unexpected failures.
+
+### Running locally
+
+```bash
+docker compose up -d postgres   # start PostgreSQL
+npm run prisma:migrate          # or: npx prisma db push (create tables)
+npm run db:seed                 # seed default skills and developers
+npm run dev                     # start the API (PORT defaults to 6000)
+```
+
 ## Scripts
 
 | Script | Description |

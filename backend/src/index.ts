@@ -2,6 +2,9 @@ import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 import { prisma } from './db';
+import { tasksRouter } from './routes/tasks';
+import { errorHandler } from './middleware/error-handler';
+import { buildOpenApiDocument } from './openapi';
 
 const app = express();
 const port = Number(process.env.PORT) || 6000;
@@ -24,6 +27,18 @@ app.get('/api/health/db', async (_req, res) => {
     console.error('Database health check failed:', error);
   }
 });
+
+// OpenAPI specification (built once at startup).
+const openApiDocument = buildOpenApiDocument();
+app.get('/api/openapi.json', (_req, res) => {
+  res.json(openApiDocument);
+});
+
+// Task API.
+app.use('/api/tasks', tasksRouter);
+
+// Central error handler — must be registered after routes.
+app.use(errorHandler);
 
 const server = app.listen(port, () => {
   console.log(`Backend listening on port ${port}`);
