@@ -3,6 +3,8 @@ import cors from 'cors';
 import express from 'express';
 import { prisma } from './db';
 import { tasksRouter } from './routes/tasks';
+import { developersRouter } from './routes/developers';
+import { skillsRouter } from './routes/skills';
 import { errorHandler } from './middleware/error-handler';
 import { buildOpenApiDocument } from './openapi';
 
@@ -36,6 +38,10 @@ app.get('/api/openapi.json', (_req, res) => {
 
 // Task API.
 app.use('/api/tasks', tasksRouter);
+
+// Developer & Skill read APIs.
+app.use('/api/developers', developersRouter);
+app.use('/api/skills', skillsRouter);
 
 // Central error handler — must be registered after routes.
 app.use(errorHandler);

@@ -11,6 +11,8 @@ import {
   TaskListSchema,
   TaskSchema,
 } from './schemas/task';
+import { DeveloperDetailSchema, IdParamSchema } from './schemas/developer';
+import { SkillDetailSchema } from './schemas/skill';
 
 const registry = new OpenAPIRegistry();
 
@@ -97,6 +99,36 @@ registry.registerPath({
     },
     400: errorResponse('Invalid status value'),
     404: errorResponse('Task not found'),
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/developers/{id}',
+  summary: 'Fetch a developer by id (own fields and skills)',
+  request: { params: IdParamSchema },
+  responses: {
+    200: {
+      description: 'The developer',
+      content: { 'application/json': { schema: DeveloperDetailSchema } },
+    },
+    400: errorResponse('Invalid id'),
+    404: errorResponse('Developer not found'),
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/skills/{id}',
+  summary: 'Fetch a skill by id (own fields only)',
+  request: { params: IdParamSchema },
+  responses: {
+    200: {
+      description: 'The skill',
+      content: { 'application/json': { schema: SkillDetailSchema } },
+    },
+    400: errorResponse('Invalid id'),
+    404: errorResponse('Skill not found'),
   },
 });
 

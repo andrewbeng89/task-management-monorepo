@@ -15,6 +15,8 @@ the spec never drifts from the implementation).
 | `GET /api/tasks/:id` | Fetch a single task. `404` if unknown. |
 | `PATCH /api/tasks/:id/assignee` | Assign to a developer (`{ "developerId" }`). Allowed only if the developer has **at least one** of the task's required skills (any developer if the task requires none); `409` on mismatch. |
 | `PATCH /api/tasks/:id/status` | Update status (`{ "status": "TODO" \| "IN_PROGRESS" \| "DONE" }`). |
+| `GET /api/developers/:id` | Fetch a developer with its downstream relations: `id`, `name`, timestamps, and `skills`. Assigned tasks are excluded (upstream). `404` if unknown. |
+| `GET /api/skills/:id` | Fetch a skill's own fields: `id`, `name`, `createdAt`. Developers/tasks that reference it are excluded (upstream). `404` if unknown. |
 | `GET /api/openapi.json` | The OpenAPI 3.1 specification. |
 | `GET /api/health`, `GET /api/health/db` | Liveness / readiness. |
 
