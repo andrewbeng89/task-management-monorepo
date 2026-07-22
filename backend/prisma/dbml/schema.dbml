@@ -1,0 +1,72 @@
+Enum "TaskStatus" {
+  "TODO"
+  "IN_PROGRESS"
+  "DONE"
+}
+
+Table "developers" {
+  "id" TEXT [not null]
+  "name" TEXT [not null]
+  "created_at" TIMESTAMP(3) [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP(3) [not null]
+
+  Indexes {
+    id [pk, name: "developers_pkey"]
+    name [unique, name: "developers_name_key"]
+  }
+}
+
+Table "skills" {
+  "id" TEXT [not null]
+  "name" TEXT [not null]
+  "created_at" TIMESTAMP(3) [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    id [pk, name: "skills_pkey"]
+    name [unique, name: "skills_name_key"]
+  }
+}
+
+Table "developer_skills" {
+  "developer_id" TEXT [not null]
+  "skill_id" TEXT [not null]
+
+  Indexes {
+    (developer_id, skill_id) [pk, name: "developer_skills_pkey"]
+  }
+}
+
+Table "task_skills" {
+  "task_id" TEXT [not null]
+  "skill_id" TEXT [not null]
+
+  Indexes {
+    (task_id, skill_id) [pk, name: "task_skills_pkey"]
+  }
+}
+
+Table "tasks" {
+  "id" TEXT [not null]
+  "title" TEXT [not null]
+  "status" TaskStatus [not null, default: 'TODO']
+  "assignee_id" TEXT
+  "parent_id" TEXT
+  "created_at" TIMESTAMP(3) [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP(3) [not null]
+
+  Indexes {
+    id [pk, name: "tasks_pkey"]
+  }
+}
+
+Ref "developer_skills_developer_id_fkey":"developers"."id" < "developer_skills"."developer_id" [update: cascade, delete: cascade]
+
+Ref "developer_skills_skill_id_fkey":"skills"."id" < "developer_skills"."skill_id" [update: cascade, delete: cascade]
+
+Ref "task_skills_task_id_fkey":"tasks"."id" < "task_skills"."task_id" [update: cascade, delete: cascade]
+
+Ref "task_skills_skill_id_fkey":"skills"."id" < "task_skills"."skill_id" [update: cascade, delete: cascade]
+
+Ref "tasks_assignee_id_fkey":"developers"."id" < "tasks"."assignee_id" [update: cascade, delete: set null]
+
+Ref "tasks_parent_id_fkey":"tasks"."id" < "tasks"."parent_id" [update: cascade, delete: cascade]
