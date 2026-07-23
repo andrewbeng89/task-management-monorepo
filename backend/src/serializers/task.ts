@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 export const taskInclude = {
   assignee: true,
   skills: { include: { skill: true } },
+  subtasks: { select: { status: true } },
 } satisfies Prisma.TaskInclude;
 
 type TaskWithRelations = Prisma.TaskGetPayload<{ include: typeof taskInclude }>;
@@ -25,6 +26,8 @@ export function serializeTask(task: TaskWithRelations) {
       id: ts.skill.id,
       name: ts.skill.name,
     })),
+    // True when every direct subtask is DONE (and trivially true when none).
+    allSubtasksDone: task.subtasks.every((s) => s.status === 'DONE'),
     parentId: task.parentId,
     createdAt: task.createdAt.toISOString(),
     updatedAt: task.updatedAt.toISOString(),

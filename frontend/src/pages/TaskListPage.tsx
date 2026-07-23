@@ -36,7 +36,9 @@ function TaskListPage() {
     let active = true
     listTasks()
       .then((tasks) => {
-        if (active) setLoad({ status: 'loaded', tasks })
+        // Only root-level tasks are shown; subtasks are hidden for now.
+        const rootTasks = tasks.filter((t) => t.parentId === null)
+        if (active) setLoad({ status: 'loaded', tasks: rootTasks })
       })
       .catch(async (error) => {
         if (active)
@@ -252,11 +254,17 @@ function TaskListPage() {
                           color: 'var(--text-h)',
                         }}
                       >
-                        {STATUS_ORDER.map((s) => (
-                          <option key={s} value={s}>
-                            {STATUS_LABELS[s]}
-                          </option>
-                        ))}
+                        {STATUS_ORDER.map((s) => {
+                          const blockDone =
+                            s === 'DONE' && !task.allSubtasksDone
+                          return (
+                            <option key={s} value={s} disabled={blockDone}>
+                              {blockDone
+                                ? 'Done (finish subtasks first)'
+                                : STATUS_LABELS[s]}
+                            </option>
+                          )
+                        })}
                       </select>
                     </td>
                     <td className="px-3 py-2">

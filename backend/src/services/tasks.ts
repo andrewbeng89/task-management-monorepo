@@ -114,10 +114,27 @@ export async function listTaskAssignees(taskId: string) {
   return candidates.map(serializeDeveloper);
 }
 
-/** Updates a task's status or throws 404 if the task does not exist. */
+/**
+ * Updates a task's status. A task may only become `DONE` when all of its direct
+ * subtasks are already `DONE`; otherwise the update is rejected with a conflict.
+ */
 export async function updateTaskStatus(taskId: string, { status }: StatusBody) {
-  const existing = await prisma.task.findUnique({ where: { id: taskId } });
+  const existing = await prisma.task.findUnique({
+    where: { id: taskId },
+    include: { subtasks: { select: { status: true } } },
+  });
   if (!existing) throw notFound(`Task ${taskId} not found`);
+
+  if (status === 'DONE') {
+    const hasUnfinishedSubtask = existing.subtasks.some(
+      (s) => s.status !== 'DONE',
+    );
+    if (hasUnfinishedSubtask) {
+      throw conflict(
+        `Task ${taskId} cannot be marked DONE while it has unfinished subtasks`,
+      );
+    }
+  }
 
   const updated = await prisma.task.update({
     where: { id: taskId },

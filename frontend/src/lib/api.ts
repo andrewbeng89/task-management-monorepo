@@ -15,6 +15,7 @@ export interface Task {
   status: 'TODO' | 'IN_PROGRESS' | 'DONE'
   assignee: { id: string; name: string } | null
   requiredSkills: { id: string; name: string }[]
+  allSubtasksDone: boolean
   parentId: string | null
   createdAt: string
   updatedAt: string
@@ -31,6 +32,7 @@ export interface Developer {
 export interface CreateTaskInput {
   title: string
   requiredSkillIds?: string[]
+  parentId?: string
 }
 
 /** Lists all skills. */

@@ -52,6 +52,7 @@ export const TaskSchema = z
     status: TaskStatusSchema,
     assignee: AssigneeRefSchema.nullable(),
     requiredSkills: z.array(SkillRefSchema),
+    allSubtasksDone: z.boolean(),
     parentId: z.string().uuid().nullable(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),

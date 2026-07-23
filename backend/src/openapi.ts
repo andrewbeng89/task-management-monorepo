@@ -119,6 +119,7 @@ registry.registerPath({
     },
     400: errorResponse('Invalid status value'),
     404: errorResponse('Task not found'),
+    409: errorResponse('Cannot mark DONE while subtasks are unfinished'),
   },
 });
 
