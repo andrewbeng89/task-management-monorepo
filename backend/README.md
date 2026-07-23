@@ -27,7 +27,7 @@ errors and `500` for unexpected failures.
 
 ```bash
 docker compose up -d postgres   # start PostgreSQL
-npm run prisma:migrate          # or: npx prisma db push (create tables)
+npm run prisma:migrate          # apply migrations (creates/updates tables)
 npm run db:seed                 # seed default skills and developers
 npm run dev                     # start the API (PORT defaults to 6000)
 ```
