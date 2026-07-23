@@ -1,6 +1,7 @@
 import { prisma } from '../db';
 import { badRequest, conflict, notFound } from '../lib/errors';
 import { serializeTask, taskInclude } from '../serializers/task';
+import { developerInclude, serializeDeveloper } from '../serializers/developer';
 import type {
   AssignBody,
   CreateTaskBody,
@@ -77,6 +78,40 @@ export async function assignTask(taskId: string, { developerId }: AssignBody) {
     include: taskInclude,
   });
   return serializeTask(updated);
+}
+
+/**
+ * Lists the developers eligible to be assigned to a task: those holding at
+ * least one of the task's required skills and not already the task's assignee.
+ * When the task requires no skills, every developer (minus the current
+ * assignee) is a candidate — mirroring the rule in `assignTask`.
+ */
+export async function listTaskAssignees(taskId: string) {
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    select: {
+      assigneeId: true,
+      skills: { select: { skillId: true } },
+    },
+  });
+  if (!task) throw notFound(`Task ${taskId} not found`);
+
+  const requiredSkillIds = task.skills.map((s) => s.skillId);
+
+  const candidates = await prisma.developer.findMany({
+    where: {
+      // Exclude whoever is already assigned to this task.
+      ...(task.assigneeId ? { id: { not: task.assigneeId } } : {}),
+      // Match at least one required skill; a task with no skills matches all.
+      ...(requiredSkillIds.length
+        ? { skills: { some: { skillId: { in: requiredSkillIds } } } }
+        : {}),
+    },
+    include: developerInclude,
+    orderBy: { name: 'asc' },
+  });
+
+  return candidates.map(serializeDeveloper);
 }
 
 /** Updates a task's status or throws 404 if the task does not exist. */

@@ -22,3 +22,8 @@ export const DeveloperDetailSchema = z
     skills: z.array(SkillRefSchema),
   })
   .openapi('DeveloperDetail');
+
+/** A list of developers — used by the task "candidate assignees" endpoint. */
+export const DeveloperListSchema = z
+  .array(DeveloperDetailSchema)
+  .openapi('DeveloperList');

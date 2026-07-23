@@ -11,8 +11,12 @@ import {
   TaskListSchema,
   TaskSchema,
 } from './schemas/task';
-import { DeveloperDetailSchema, IdParamSchema } from './schemas/developer';
-import { SkillDetailSchema } from './schemas/skill';
+import {
+  DeveloperDetailSchema,
+  DeveloperListSchema,
+  IdParamSchema,
+} from './schemas/developer';
+import { SkillDetailSchema, SkillListSchema } from './schemas/skill';
 
 const registry = new OpenAPIRegistry();
 
@@ -85,6 +89,22 @@ registry.registerPath({
 });
 
 registry.registerPath({
+  method: 'get',
+  path: '/api/tasks/{id}/assignees',
+  summary:
+    'List developers eligible to be assigned to a task (matching at least one required skill and not already assigned)',
+  request: { params: TaskIdParamSchema },
+  responses: {
+    200: {
+      description: 'Candidate developers for the task',
+      content: { 'application/json': { schema: DeveloperListSchema } },
+    },
+    400: errorResponse('Invalid task id'),
+    404: errorResponse('Task not found'),
+  },
+});
+
+registry.registerPath({
   method: 'patch',
   path: '/api/tasks/{id}/status',
   summary: "Update a task's status",
@@ -114,6 +134,18 @@ registry.registerPath({
     },
     400: errorResponse('Invalid id'),
     404: errorResponse('Developer not found'),
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/skills',
+  summary: 'List all skills',
+  responses: {
+    200: {
+      description: 'List of skills',
+      content: { 'application/json': { schema: SkillListSchema } },
+    },
   },
 });
 

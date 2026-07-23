@@ -17,3 +17,6 @@ export const SkillDetailSchema = z
     createdAt: z.string().datetime(),
   })
   .openapi('SkillDetail');
+
+/** A list of skills — used by `GET /api/skills`. */
+export const SkillListSchema = z.array(SkillDetailSchema).openapi('SkillList');

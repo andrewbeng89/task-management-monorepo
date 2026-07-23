@@ -9,6 +9,7 @@ import {
   assignTask,
   createTask,
   getTaskById,
+  listTaskAssignees,
   listTasks,
   updateTaskStatus,
 } from '../services/tasks';
@@ -31,6 +32,12 @@ tasksRouter.get('/', async (_req, res) => {
 tasksRouter.get('/:id', async (req, res) => {
   const { id } = TaskIdParamSchema.parse(req.params);
   res.json(await getTaskById(id));
+});
+
+// List developers eligible to be assigned to this task (skill match, not already assigned).
+tasksRouter.get('/:id/assignees', async (req, res) => {
+  const { id } = TaskIdParamSchema.parse(req.params);
+  res.json(await listTaskAssignees(id));
 });
 
 // Assign a task to a developer (skill-match enforced in the service).
