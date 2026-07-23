@@ -23,6 +23,43 @@ type AssigneeOptions =
   | { state: 'error' }
   | { state: 'loaded'; developers: Developer[] }
 
+interface OrderedRow {
+  task: Task
+  depth: number
+  parentTitle?: string
+}
+
+/**
+ * Orders tasks depth-first so each subtask appears immediately beneath its
+ * parent, tracking nesting depth and the parent's title. Sibling order follows
+ * the input order (the API returns tasks by `createdAt`). A task whose parent
+ * is not in the set is treated as a root so no rows are dropped.
+ */
+function orderByHierarchy(tasks: Task[]): OrderedRow[] {
+  const ids = new Set(tasks.map((t) => t.id))
+  const childrenByParent = new Map<string, Task[]>()
+  const roots: Task[] = []
+  for (const task of tasks) {
+    if (task.parentId && ids.has(task.parentId)) {
+      const siblings = childrenByParent.get(task.parentId) ?? []
+      siblings.push(task)
+      childrenByParent.set(task.parentId, siblings)
+    } else {
+      roots.push(task)
+    }
+  }
+
+  const ordered: OrderedRow[] = []
+  const visit = (task: Task, depth: number, parentTitle?: string) => {
+    ordered.push({ task, depth, parentTitle })
+    for (const child of childrenByParent.get(task.id) ?? []) {
+      visit(child, depth + 1, task.title)
+    }
+  }
+  for (const root of roots) visit(root, 0)
+  return ordered
+}
+
 function TaskListPage() {
   const [load, setLoad] = useState<LoadState>({ status: 'loading' })
   const [assigneeOptions, setAssigneeOptions] = useState<
@@ -36,9 +73,8 @@ function TaskListPage() {
     let active = true
     listTasks()
       .then((tasks) => {
-        // Only root-level tasks are shown; subtasks are hidden for now.
-        const rootTasks = tasks.filter((t) => t.parentId === null)
-        if (active) setLoad({ status: 'loaded', tasks: rootTasks })
+        // Show all tasks (roots and subtasks); ordering/grouping happens at render.
+        if (active) setLoad({ status: 'loaded', tasks })
       })
       .catch(async (error) => {
         if (active)
@@ -214,7 +250,7 @@ function TaskListPage() {
               </tr>
             </thead>
             <tbody>
-              {load.tasks.map((task) => {
+              {orderByHierarchy(load.tasks).map(({ task, depth, parentTitle }) => {
                 const rowBusy = busy.has(task.id)
                 const options = assigneeOptions[task.id] ?? { state: 'idle' }
                 const candidates =
@@ -227,8 +263,21 @@ function TaskListPage() {
                     <th
                       scope="row"
                       className="px-3 py-2 font-normal"
-                      style={{ color: 'var(--text-h)' }}
+                      style={{
+                        color: 'var(--text-h)',
+                        paddingLeft: `${0.75 + depth * 1.5}rem`,
+                      }}
                     >
+                      {parentTitle && (
+                        <>
+                          <span className="sr-only">
+                            Subtask of “{parentTitle}”:{' '}
+                          </span>
+                          <span aria-hidden="true" style={{ color: 'var(--text)' }}>
+                            ↳{' '}
+                          </span>
+                        </>
+                      )}
                       {task.title}
                     </th>
                     <td className="px-3 py-2">
@@ -247,7 +296,7 @@ function TaskListPage() {
                             e.target.value as Task['status'],
                           )
                         }
-                        className="rounded-md border px-2 py-1"
+                        className="rounded-md border px-2 py-1 w-full"
                         style={{
                           borderColor: 'var(--border)',
                           background: 'var(--bg)',
