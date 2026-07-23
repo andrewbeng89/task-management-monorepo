@@ -20,6 +20,14 @@ export interface Task {
   updatedAt: string
 }
 
+export interface Developer {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+  skills: { id: string; name: string }[]
+}
+
 export interface CreateTaskInput {
   title: string
   requiredSkillIds?: string[]
@@ -30,9 +38,29 @@ export function listSkills(): Promise<Skill[]> {
   return client.get('skills').json<Skill[]>()
 }
 
+/** Lists all tasks. */
+export function listTasks(): Promise<Task[]> {
+  return client.get('tasks').json<Task[]>()
+}
+
 /** Creates a task via `POST /api/tasks`. */
 export function createTask(input: CreateTaskInput): Promise<Task> {
   return client.post('tasks', { json: input }).json<Task>()
+}
+
+/** Updates a task's status via `PATCH /api/tasks/:id/status`. */
+export function updateTaskStatus(id: string, status: Task['status']): Promise<Task> {
+  return client.patch(`tasks/${id}/status`, { json: { status } }).json<Task>()
+}
+
+/** Lists the developers eligible to be assigned to a task. */
+export function listTaskAssignees(id: string): Promise<Developer[]> {
+  return client.get(`tasks/${id}/assignees`).json<Developer[]>()
+}
+
+/** Assigns a developer to a task via `PATCH /api/tasks/:id/assignee`. */
+export function assignTask(id: string, developerId: string): Promise<Task> {
+  return client.patch(`tasks/${id}/assignee`, { json: { developerId } }).json<Task>()
 }
 
 /**
