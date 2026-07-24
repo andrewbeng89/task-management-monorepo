@@ -58,15 +58,16 @@ npm run dev                     # start the API (PORT defaults to 6000)
 
 ## Scripts
 
-| Script                    | Description                                          |
-| ------------------------- | ---------------------------------------------------- |
-| `npm run dev`             | Start the API in watch mode (`tsx`).                 |
-| `npm run build`           | Compile TypeScript to `dist/`.                       |
-| `npm start`               | Run the compiled server.                             |
-| `npm run prisma:generate` | Generate the Prisma Client.                          |
-| `npm run prisma:migrate`  | Run a development migration.                         |
-| `npm run db:seed`         | Seed the database.                                   |
-| `npm run db:dbml`         | Generate the DBML ER diagram from the Prisma schema. |
+| Script                    | Description                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `npm run dev`             | Start the API in watch mode (`tsx`).                                                               |
+| `npm run build`           | Compile TypeScript to `dist/`.                                                                     |
+| `npm start`               | Run the compiled server.                                                                           |
+| `npm run prisma:generate` | Generate the Prisma Client.                                                                        |
+| `npm run prisma:migrate`  | Run a development migration.                                                                       |
+| `npm run db:seed`         | Seed the database (upserts default skills/developers).                                             |
+| `npm run db:reset`        | Drop the database, re-apply migrations, and re-seed (`prisma migrate reset --force`). Destructive. |
+| `npm run db:dbml`         | Generate the DBML ER diagram from the Prisma schema.                                               |
 
 ## DBML entity-relationship diagram
 

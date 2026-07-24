@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force",
     "db:dbml": "tsx prisma/generate-dbml.ts"
   },
   "keywords": [],
