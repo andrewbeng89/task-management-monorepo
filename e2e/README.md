@@ -50,6 +50,8 @@ npm run e2e         # e2e:up && e2e:test
 npm run e2e:down
 ```
 
+- > **Note on E2E Environment:** The E2E runner executes host-side Playwright scripts against the containerized stack. Ensure `DATABASE_URL` points to `localhost:5432` when running tests directly on the host machine.
+
 ### How readiness and seeding work
 
 Before any test runs, `global-setup.ts`:
