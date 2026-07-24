@@ -42,6 +42,49 @@ See the per-package READMEs for endpoint-level and app-level detail.
 - [oxlint](https://oxc.rs/) for linting, [Prettier](https://prettier.io/) for formatting
 - [Docker Compose](https://docs.docker.com/compose/) for local orchestration (Postgres + backend + frontend)
 
+## System requirements
+
+Everything below is what you need installed on the host to build, run, and test the app.
+
+### Runtime & tooling
+
+| Requirement        | Version                  | Notes                                                                                     |
+| ------------------ | ------------------------ | ----------------------------------------------------------------------------------------- |
+| **Node.js**        | 20.19+ (or 22.12+), LTS  | Required by Vite 8; `nvm use --lts` recommended. No `engines` field is enforced.          |
+| **npm**            | 9+ (ships with Node 20+) | Uses npm **workspaces**; run `npm install` once at the repo root to install all packages. |
+| **Docker Engine**  | 20.10+                   | Runs PostgreSQL, and optionally the whole stack.                                          |
+| **Docker Compose** | v2 (`docker compose`)    | The v2 plugin syntax; the repo's scripts assume it.                                       |
+| **Git**            | any recent               | To clone the repo.                                                                        |
+
+### External services
+
+- **PostgreSQL 17** — provided as a container by Docker Compose (image `postgres:17-alpine`);
+  no host-level Postgres install is required.
+- **Gemini API** _(optional)_ — only for AI skill inference. Set `GEMINI_API_KEY` to enable it;
+  the app runs identically without it. `GEMINI_MODEL` selects the model (defaults to
+  `gemini-3.5-flash`); set it to a current model id if the default has been retired. See the
+  AI notes under [Engineering decisions](#engineering--architectural-decisions).
+
+### Host ports
+
+The stack binds these localhost ports — they must be free:
+
+| Port   | Service               |
+| ------ | --------------------- |
+| `3000` | Frontend (nginx/Vite) |
+| `6000` | Backend API           |
+| `5432` | PostgreSQL            |
+
+### End-to-end test dependencies
+
+Running the Playwright suite additionally requires a downloaded browser:
+
+```bash
+npm run install:browsers --workspace=e2e   # one-time: downloads Chromium (+ OS deps)
+```
+
+See [`e2e/README.md`](e2e/README.md) for the full e2e prerequisites and flow.
+
 ## Local development setup
 
 ### Prerequisites
