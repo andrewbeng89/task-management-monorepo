@@ -64,6 +64,8 @@ Everything below is what you need installed on the host to build, run, and test 
   the app runs identically without it. `GEMINI_MODEL` selects the model (defaults to
   `gemini-3.5-flash`); set it to a current model id if the default has been retired. See the
   AI notes under [Engineering decisions](#engineering--architectural-decisions).
+  - **Fail-safe Design:** If `GEMINI_API_KEY` is missing, invalid, or quota-throttled, the backend
+    automatically degrades gracefully (falling back to an empty skill list) so task creation **never fails or throws an HTTP 500 error**.
 
 ### Host ports
 
