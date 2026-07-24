@@ -104,6 +104,16 @@ cp .env.example .env        # then edit values as needed
 Key ports: **frontend** http://localhost:3000, **backend** http://localhost:6000
 (API under `/api`), **PostgreSQL** `localhost:5432`.
 
+Once running, the generated **OpenAPI 3.1 document** is served at `GET /api/openapi.json` —
+load it into any OpenAPI viewer (Swagger UI, Scalar, Postman, etc.) to explore the endpoints.
+Where to reach it depends on how you run the app:
+
+- **Docker Compose (Option A):** the backend port `6000` is **not** meant to be used
+  directly — the frontend fronts the API via the nginx `/api` proxy, so use
+  [http://localhost:3000/api/openapi.json](http://localhost:3000/api/openapi.json).
+- **Workspaces directly (Option B):** hit the backend directly at
+  [http://localhost:6000/api/openapi.json](http://localhost:6000/api/openapi.json).
+
 ### Option A — run everything with Docker Compose
 
 ```bash
