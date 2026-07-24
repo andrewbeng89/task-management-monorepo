@@ -33,6 +33,7 @@ services:
       PORT: ${PORT:-6000}
       NODE_ENV: ${NODE_ENV:-production}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
     ports:
       - "6000:6000"
     depends_on:
