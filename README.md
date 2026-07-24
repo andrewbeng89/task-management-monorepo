@@ -111,6 +111,15 @@ npm run docker:up           # builds & starts postgres, backend, frontend
 npm run docker:down         # stops the stack
 ```
 
+> **Note on Docker startup:** container startup automatically applies Prisma database
+> migrations (`prisma migrate deploy`) via the backend's entrypoint — no extra step is
+> needed for the schema. Seeding is **not** automatic, though: to load the initial
+> skills/developers, run the seed once after the stack is up (it's idempotent):
+>
+> ```bash
+> docker compose exec backend npm run db:seed
+> ```
+
 ### Option B — run the workspaces directly (Postgres in Docker)
 
 ```bash
