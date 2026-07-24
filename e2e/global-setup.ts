@@ -66,6 +66,11 @@ function runBackendScript(script: string) {
  * requires the `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION` env var.
  */
 function resetAndSeed() {
+  // The reset/seed scripts run on the *host* and import `@prisma/client`, which
+  // needs the generated client in the host's node_modules. A fresh `npm install`
+  // leaves it ungenerated, so generate first (fast + idempotent) to be self-healing.
+  console.log('[e2e] Generating Prisma client…');
+  runBackendScript('prisma:generate');
   console.log('[e2e] Resetting the database…');
   runBackendScript('db:reset');
   console.log('[e2e] Seeding the database…');
