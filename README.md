@@ -121,10 +121,12 @@ npm run e2e:down                           # stop the stack
 - **Monorepo with npm workspaces.** Backend and frontend live together for a single
   install, shared tooling (oxlint/Prettier), and coordinated changes, without a heavier
   monorepo tool.
+- **Spec-driven development & documentation.** [OpenSpec](https://openspec.dev/) used for lightweight RFCs / Decision Logs;
+  the latest specifications live in `/openspec/specs`, while iterative changes are logged to `/openspec/changes`.
 - **Spec-driven API with generated OpenAPI.** Request/response shapes are Zod schemas;
   the OpenAPI 3.1 document is generated from those same schemas, so the published spec
   cannot drift from validation.
-- **Prisma 7 with a driver adapter.** The datasource URL is provided via Prisma config
+- **Prisma 7 with a driver adapter.** Modern ORM for easy querying, validation and type-checking. The datasource URL is provided via Prisma config
   (`prisma.config.ts`) + environment rather than hard-coded in `schema.prisma`; the
   database is managed by Prisma Migrate.
 - **Skill-based assignment.** A developer may be assigned to a task only if they hold at
