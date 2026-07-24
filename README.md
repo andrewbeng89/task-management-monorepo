@@ -169,6 +169,11 @@ This is an MVP and intentionally leaves several things out of scope:
   last-write-wins; there is no locking or optimistic-concurrency control.
 - **Validation is limited to the API's Zod schemas**; there is no rate limiting.
 - **No pagination** on list endpoints (fine at the expected MVP data volume).
+- **A task's required skills are set only at creation time.** Skills are chosen (or
+  AI-inferred) when the task is created; updating the skills of an existing task is
+  out of scope for the MVP. Consequently the task list shows the Skills cell as
+  read-only, and there is no API endpoint for changing a task's skills — only its
+  status and assignee are mutable after creation.
 
 ## Known security advisories
 
