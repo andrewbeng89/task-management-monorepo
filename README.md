@@ -238,6 +238,13 @@ This is an MVP and intentionally leaves several things out of scope:
   out of scope for the MVP. Consequently the task list shows the Skills cell as
   read-only, and there is no API endpoint for changing a task's skills — only its
   status and assignee are mutable after creation.
+  - **Breaking changes to consider when an "edit skills" feature is added.** Assignment
+    is coupled to skills: a developer may only be assigned to a task if they hold at
+    least one of its required skills (see the skill-based assignment decision above).
+    So editing a task's skills after assignment can invalidate an existing assignee —
+    any future feature must decide how to handle that (e.g. block a skill change that
+    would orphan the current assignee, or clear/re-validate the assignee on change) and
+    will likely require API and data-integrity changes rather than a purely additive one.
 
 ## Known security advisories
 
