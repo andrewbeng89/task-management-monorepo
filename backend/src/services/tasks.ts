@@ -2,23 +2,45 @@ import { prisma } from '../db';
 import { badRequest, conflict, notFound } from '../lib/errors';
 import { serializeTask, taskInclude } from '../serializers/task';
 import { developerInclude, serializeDeveloper } from '../serializers/developer';
+import { listSkills } from './skills';
+import { inferSkillIds } from './skill-inference';
 import type {
   AssignBody,
   CreateTaskBody,
   StatusBody,
 } from '../schemas/task';
 
-/** Creates a task, optionally linking required skills and a parent. */
+/**
+ * Creates a task, linking required skills and an optional parent. When no
+ * `requiredSkillIds` are supplied, the skills are inferred from the task's own
+ * title via the Gemini API (best-effort — any failure just yields no skills).
+ */
 export async function createTask(input: CreateTaskBody) {
   await assertReferencesExist(input);
+
+  let skillIds = input.requiredSkillIds ?? [];
+  if (skillIds.length === 0) {
+    const skills = await listSkills();
+    if (skills.length > 0) {
+      try {
+        skillIds = await inferSkillIds(input.title, skills);
+      } catch (error) {
+        console.warn(
+          `Skill inference failed for task "${input.title}"; creating without skills.`,
+          error,
+        );
+        skillIds = [];
+      }
+    }
+  }
 
   const task = await prisma.task.create({
     data: {
       title: input.title,
       status: input.status ?? 'TODO',
       parentId: input.parentId ?? null,
-      skills: input.requiredSkillIds?.length
-        ? { create: input.requiredSkillIds.map((skillId) => ({ skillId })) }
+      skills: skillIds.length
+        ? { create: skillIds.map((skillId) => ({ skillId })) }
         : undefined,
     },
     include: taskInclude,

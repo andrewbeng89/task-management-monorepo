@@ -26,7 +26,7 @@ See the per-package READMEs for endpoint-level and app-level detail.
 - [Prisma 7](https://www.prisma.io/) ORM with the `pg` driver adapter, on **PostgreSQL**
 - [Zod](https://zod.dev/) for request validation
 - OpenAPI 3.1 generated from the Zod schemas via [`@asteasolutions/zod-to-openapi`](https://github.com/asteasolutions/zod-to-openapi) (served at `GET /api/openapi.json`)
-- `@google/genai` (Gemini) dependency available for AI features
+- [`@google/genai`](https://www.npmjs.com/package/@google/genai) (Gemini) to infer a task's required skills from its title on creation when none are provided
 
 **Frontend**
 
@@ -116,6 +116,9 @@ npm run format           # prettier --write .
 - **Accessibility-first frontend.** Semantic landmarks, keyboard operability, labelled
   controls, and announced updates are treated as requirements, not extras. The client
   uses `ky` directly (no server-state cache layer yet).
+- **AI-assisted skill tagging.** When a task is created without skills, the backend infers
+  them from the task's title via the Gemini API, constrained to existing skills. It is
+  best-effort and behind `GEMINI_API_KEY`, so the app works identically with the key unset.
 
 ## Assumptions (MVP)
 
