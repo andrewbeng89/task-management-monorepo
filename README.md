@@ -89,7 +89,7 @@ See [`e2e/README.md`](e2e/README.md) for the full e2e prerequisites and flow.
 
 ### Prerequisites
 
-- Node.js 20+ and npm
+- Node.js 20.19+ (or 22.12+) and npm — see [System requirements](#system-requirements) above
 - Docker + Docker Compose (for PostgreSQL, and optionally the whole stack)
 
 ### Install & configure
