@@ -141,6 +141,13 @@ npm run e2e:down                           # stop the stack
 - **AI-assisted skill tagging.** When a task is created without skills, the backend infers
   them from the task's title via the Gemini API, constrained to existing skills. It is
   best-effort and behind `GEMINI_API_KEY`, so the app works identically with the key unset.
+- **Consider open-weight, self-hosted models over a cloud provider.** Skill inference
+  currently depends on a cloud-hosted provider (Gemini), which adds an external dependency,
+  per-call cost, network latency, and sends task titles off-site. A future iteration should
+  evaluate open-weight models (e.g. Qwen, Llama) served locally — this keeps data in-house,
+  removes the API key and usage cost, and could be orchestrated as another Docker Compose
+  service (e.g. an [Ollama](https://ollama.com/) / vLLM container) that the backend talks to
+  over the internal network, keeping the existing best-effort, provider-swappable design.
 
 ## Assumptions (MVP)
 
