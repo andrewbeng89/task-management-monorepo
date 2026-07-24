@@ -80,7 +80,7 @@ The frontend SHALL meet baseline web accessibility standards for structure and k
 
 ### Requirement: Task list page
 
-The frontend SHALL provide a working task list page that fetches tasks from `GET /api/tasks` and presents **all** tasks — both root-level tasks and subtasks — in an accessible HTML `<table>` with the columns **Title**, **Skills**, **Status**, and **Assignee**. Tasks SHALL be grouped and ordered so that each subtask appears beneath its parent (depth-first order), with the Title cell visually indented according to nesting depth. The parent/child relationship SHALL be conveyed accessibly and not by indentation alone (for example, a screen-reader hint identifying a row as a subtask of its parent). The Title and Skills cells SHALL be read-only. The Status cell SHALL allow changing the task's status, and the Assignee cell SHALL allow assigning a developer. The "Done" status option SHALL be disabled for any task (root or subtask) whose `allSubtasksDone` is `false`. Status values SHALL be shown as human-readable labels (for example "To do", "In progress", "Done"). The page SHALL communicate loading, empty, and error states accessibly, and SHALL keep a link to the task creation page.
+The frontend SHALL provide a working task list page that fetches tasks from `GET /api/tasks` and presents **all** tasks — both root-level tasks and subtasks — in an accessible HTML `<table>` with the columns **Title**, **Skills**, **Status**, and **Assignee**. Tasks SHALL be grouped and ordered so that each subtask appears beneath its parent (depth-first order), with the Title cell visually indented according to nesting depth. The parent/child relationship SHALL be conveyed accessibly and not by indentation alone (for example, a screen-reader hint identifying a row as a subtask of its parent). The Title and Skills cells SHALL be read-only. The Status cell SHALL allow changing the task's status, and the Assignee cell SHALL allow assigning a developer. The "Done" status option SHALL be disabled for any task (root or subtask) whose `allSubtasksDone` is `false`. When a subtask's status changes, the page SHALL refresh the task list so that ancestor completion state (`allSubtasksDone`, and therefore whether a parent's "Done" option is enabled) reflects the change without requiring a manual reload. Status values SHALL be shown as human-readable labels (for example "To do", "In progress", "Done"). The page SHALL communicate loading, empty, and error states accessibly, and SHALL keep a link to the task creation page.
 
 #### Scenario: List tasks and subtasks in a table
 
@@ -108,6 +108,11 @@ The frontend SHALL provide a working task list page that fetches tasks from `GET
 - **WHEN** a task's `allSubtasksDone` is `false` (whether it is a root task or a subtask)
 - **THEN** the "Done" option in that row's status control is disabled and cannot be selected
 
+#### Scenario: Completing all subtasks enables the parent's Done option
+
+- **WHEN** a user updates the last unfinished subtask of a parent to "Done" from the list
+- **THEN** the page refreshes the task list and the parent's "Done" option becomes enabled without a manual reload
+
 #### Scenario: Empty state
 
 - **WHEN** `GET /api/tasks` returns no tasks
@@ -122,6 +127,7 @@ The frontend SHALL provide a working task list page that fetches tasks from `GET
 
 - **WHEN** a user selects a different status from a row's status control (for a root task or a subtask)
 - **THEN** the frontend calls `PATCH /api/tasks/:id/status` for that task and, on success, reflects the new status label in that row
+- **AND** if the updated task is a subtask, the frontend refreshes the task list so ancestor completion state is up to date
 
 #### Scenario: Assign a developer to a task
 

@@ -105,6 +105,21 @@ function TaskListPage() {
     )
   }
 
+  /**
+   * Re-fetches the task list and replaces the rendered tasks in place, so that
+   * server-computed fields (e.g. an ancestor's `allSubtasksDone`) refresh. Stays
+   * in the `loaded` state — never blanks the table — and ignores refresh errors
+   * (the triggering mutation already succeeded and updated its row).
+   */
+  async function refreshTasks() {
+    try {
+      const tasks = await listTasks()
+      setLoad((prev) => (prev.status === 'loaded' ? { status: 'loaded', tasks } : prev))
+    } catch {
+      // Keep the already-updated state; a manual reload can reconcile.
+    }
+  }
+
   async function handleStatusChange(task: Task, status: Task['status']) {
     setErrorMessage(null)
     setRowBusy(task.id, true)
@@ -114,6 +129,11 @@ function TaskListPage() {
       setLiveMessage(
         `Status for "${task.title}" updated to ${STATUS_LABELS[status]}.`,
       )
+      // A subtask's status change can flip an ancestor's `allSubtasksDone`;
+      // refresh the list so a parent becomes completable without a reload.
+      if (task.parentId !== null) {
+        await refreshTasks()
+      }
     } catch (error) {
       setErrorMessage(await toErrorMessage(error))
     } finally {
