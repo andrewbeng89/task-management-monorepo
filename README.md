@@ -132,3 +132,23 @@ This is an MVP and intentionally leaves several things out of scope:
   last-write-wins; there is no locking or optimistic-concurrency control.
 - **Validation is limited to the API's Zod schemas**; there is no rate limiting.
 - **No pagination** on list endpoints (fine at the expected MVP data volume).
+
+## Known security advisories
+
+- **`@prisma/dev` transitive advisories (dev-only) — resolved.** `npm audit` previously
+  reported advisories chaining `prisma` → `@prisma/dev` → first `@hono/node-server`
+  (path traversal / middleware bypass in `serveStatic`,
+  [GHSA-frvp-7c67-39w9](https://github.com/advisories/GHSA-frvp-7c67-39w9),
+  [GHSA-92pp-h63x-v22m](https://github.com/advisories/GHSA-92pp-h63x-v22m)), then
+  `find-my-way` ≤ 9.6.0 (HTTP/2 DDoS,
+  [GHSA-c96f-x56v-gq3h](https://github.com/advisories/GHSA-c96f-x56v-gq3h)). All are within
+  the **development-only** Prisma CLI chain — the vulnerable code is not part of the
+  production app runtime (the app serves via Express and uses `@prisma/client`), so impact
+  on the deployed application was low.
+- **Resolution:** a root-level [`overrides`](package.json) pins `find-my-way` to `^9.7.0`
+  (the patched version). `overrides` must live in the **root** `package.json` to take effect
+  across workspaces — placing it in `backend/package.json` has no effect. `npm audit` now
+  reports **0 vulnerabilities**.
+- If `npm audit` flags a similar transitive advisory in future, prefer adding/bumping a
+  root `overrides` entry to a patched version over `npm audit fix` (which here pulled a
+  newer `@prisma/dev` that introduced the `find-my-way` issue).
