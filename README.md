@@ -148,6 +148,14 @@ npm run e2e:down                           # stop the stack
   removes the API key and usage cost, and could be orchestrated as another Docker Compose
   service (e.g. an [Ollama](https://ollama.com/) / vLLM container) that the backend talks to
   over the internal network, keeping the existing best-effort, provider-swappable design.
+- **Playwright for end-to-end tests.** Browser-level journeys are covered with
+  [Playwright](https://playwright.dev/) (see [`e2e/`](e2e/README.md)) rather than Cypress.
+  Playwright drives multiple browser engines from one API and runs tests as ordinary
+  Node processes, which gives more flexibility (arbitrary `async`/`await` test code, easy
+  reuse of the repo's existing Node/TypeScript tooling, straightforward `globalSetup` for
+  DB reset + seed) and a noticeably lighter memory/resource footprint than Cypress's
+  browser-runner architecture — a good fit for running against the containerized build
+  locally and, later, in CI.
 
 ## Assumptions (MVP)
 
