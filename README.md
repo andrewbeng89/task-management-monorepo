@@ -24,7 +24,7 @@ See the per-package READMEs for endpoint-level and app-level detail.
 **Backend**
 
 - Node.js + [Express](https://expressjs.com/) (TypeScript)
-- [Prisma 7](https://www.prisma.io/) ORM on **PostgreSQL**, via the [`@prisma/adapter-pg`](https://www.npmjs.com/package/@prisma/adapter-pg) driver adapter (which bundles `pg` itself, so `pg` is no longer a direct dependency)
+- [Prisma 7](https://www.prisma.io/) ORM on **PostgreSQL**, via the [`@prisma/adapter-pg`](https://www.npmjs.com/package/@prisma/adapter-pg) driver adapter
 - [Zod](https://zod.dev/) for request validation
 - OpenAPI 3.1 generated from the Zod schemas via [`@asteasolutions/zod-to-openapi`](https://github.com/asteasolutions/zod-to-openapi) (served at `GET /api/openapi.json`)
 - [`@google/genai`](https://www.npmjs.com/package/@google/genai) (Gemini) to infer a task's required skills from its title on creation when none are provided
