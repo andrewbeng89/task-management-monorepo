@@ -14,6 +14,7 @@ This is an npm-workspaces monorepo:
 | --------------------------------- | ------------------------------------------------------------------------------------------------ |
 | [`backend/`](backend/README.md)   | Express + Prisma (PostgreSQL) REST API, validated with Zod and documented via OpenAPI.           |
 | [`frontend/`](frontend/README.md) | React 19 + Vite single-page app (routing, task list, task creation).                             |
+| [`e2e/`](e2e/README.md)           | Playwright end-to-end browser tests that run against the containerized build.                    |
 | [`openspec/`](openspec/)          | Spec-driven change history: capability specs under `specs/`, proposals/designs under `changes/`. |
 
 See the per-package READMEs for endpoint-level and app-level detail.
@@ -92,6 +93,25 @@ npm run build            # build all workspaces
 npm run lint             # oxlint
 npm run format           # prettier --write .
 ```
+
+## End-to-end tests
+
+Browser-based end-to-end tests (Playwright) drive the app through a real browser
+against the **containerized build**. Before running, they wait for the stack to be
+ready and reset + seed the database to a known baseline. See
+[`e2e/README.md`](e2e/README.md) for full detail (coverage, configuration, caveats).
+
+```bash
+npm install                                # installs the e2e workspace too
+npm run install:browsers --workspace=e2e   # one-time: download Chromium
+
+npm run e2e:up                             # build & start the containerized stack
+npm run e2e:test                           # run the suite (waits for readiness, resets+seeds)
+npm run e2e:down                           # stop the stack
+```
+
+> ⚠️ The reset step is **destructive** to the stack's database (`taskdb`) — it drops
+> all task data and re-seeds the default skills and developers.
 
 ## Engineering / architectural decisions
 

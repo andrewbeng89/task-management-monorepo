@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "e2e"
   ],
   "scripts": {
     "dev:backend": "npm run dev --workspace=backend",
@@ -14,7 +15,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "docker:up": "docker-compose up --build",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "e2e:up": "GEMINI_API_KEY= VITE_API_URL=/api docker-compose up --build -d",
+    "e2e:down": "docker-compose down",
+    "e2e:seed": "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/taskdb?schema=public npm run db:reset --workspace=backend && DATABASE_URL=postgresql://postgres:postgres@localhost:5432/taskdb?schema=public npm run db:seed --workspace=backend",
+    "e2e:test": "npm run test --workspace=e2e",
+    "e2e": "npm run e2e:up && npm run e2e:test"
   },
   "devDependencies": {
     "oxlint": "1.75.0",
