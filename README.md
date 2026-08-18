@@ -249,6 +249,48 @@ This is an MVP and intentionally leaves several things out of scope:
     would orphan the current assignee, or clear/re-validate the assignee on change) and
     will likely require API and data-integrity changes rather than a purely additive one.
 
+## Potential follow-ups
+
+> **Not committed work.** These are open questions and known rough edges noticed while
+> reviewing the MVP, recorded so they are not rediscovered from scratch later. Each would
+> need its own change proposal before implementation.
+
+- **Broaden the task mutation surface.** A task can currently only be created, assigned,
+  and moved between statuses ([`routes/tasks.ts`](backend/src/routes/tasks.ts)). There is
+  no way to edit a title, delete a task, unassign a developer, or reparent a subtask. Two
+  things are worth deciding together rather than one endpoint at a time: which mutations
+  can break the skill ↔ assignee invariant (the "edit skills" note above is one instance
+  of this, not the only one), and what deletion should mean — `parentId` already carries
+  `onDelete: Cascade` in [`schema.prisma`](backend/prisma/schema.prisma), so a delete
+  endpoint would silently remove an entire subtree unless that is reconsidered first.
+- **Make skill-inference failure observable.** When Gemini inference fails, the error is
+  logged and the task is created with no required skills
+  ([`services/tasks.ts`](backend/src/services/tasks.ts)). Because a task requiring no
+  skills is assignable to _any_ developer, a transient provider outage quietly turns a
+  skill-constrained task into an unconstrained one — and the wire response is
+  indistinguishable from a task that deliberately requires no skills. Worth deciding
+  whether the DTO should distinguish "no skills needed" from "inference unavailable", so
+  the UI can prompt for manual skills rather than presenting a silently weaker guard.
+- **Revisit whether Done should consider the whole subtree.** The `DONE` transition and
+  `allSubtasksDone` deliberately check only a task's _direct_ subtasks (see the recursive
+  subtasks decision above) — a parent is gated on its immediate children, which keeps the
+  rule cheap to evaluate and easy to explain in the UI. A consequence is that a task can
+  be marked done while a grandchild is still open. That is the intended MVP behaviour, but
+  a future iteration may want the check to apply across the full subtree; doing so would
+  change both the transition guard in
+  [`services/tasks.ts`](backend/src/services/tasks.ts) and the `allSubtasksDone` flag in
+  [`serializers/task.ts`](backend/src/serializers/task.ts), which currently loads one level
+  of subtasks only.
+- **Task list is unbounded and the tree is assembled client-side.** `GET /api/tasks`
+  returns every task with its assignee and skills eagerly joined and no pagination, and
+  the frontend builds the hierarchy from the flat list
+  ([`TaskListPage.tsx`](frontend/src/pages/TaskListPage.tsx)). This is the first thing to
+  break as data grows, and the two halves are coupled: the client treats any task whose
+  parent is absent from the response as a root, so naively paginating the endpoint would
+  silently promote subtasks to top-level rows at page boundaries. Adding pagination
+  therefore means deciding where the tree gets assembled, not just adding `skip`/`take`.
+  (Extends the "no pagination" assumption above.)
+
 ## Known security advisories
 
 - **`@prisma/dev` transitive advisories (dev-only) — resolved.** `npm audit` previously
